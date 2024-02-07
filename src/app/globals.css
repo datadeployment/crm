@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Albert Sans', sans-serif !important;
+}
+
+a {
+  color: #1e75f7 !important;
+}
+
+:root {
+  --primary1: #D63484;
+  --primary2: #FF9BD2;
+  --primary3: #402B3A;
+  --primary4: #F8F4EC;
+}
+
+#globalLoader {
+  transform: translate(-50%, -50%);
+}
+
+/* .nextjs-toast-errors-parent {
+  display: none !important;
+} */
+
+/* 
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+} */
