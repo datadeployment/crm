@@ -9,7 +9,6 @@ export function middleware(request: NextRequest) {
     const isPublicPath = path === "/signin" || path === "/signup" || path === "/forgot-password";
     const token = request.cookies.get("token")?.value || "";
 
-
     if (isPublicPath && token) {
         return NextResponse.redirect(new URL("/leads", request.nextUrl));
     }

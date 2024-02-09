@@ -1,11 +1,13 @@
 "use client"
 import Button from '@/components/Button';
+import SelectDropdown from '@/components/SelectDropdown';
 import { handleGetLeadsDataRequest } from '@/redux/actions-reducers/leads/leads';
 import { handleNavigation } from '@/utils/utils';
 import moment from 'moment';
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect, ReactElement } from 'react'
 import DataTable, { TableColumn } from 'react-data-table-component';
+import toast from 'react-hot-toast';
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline, MdOutlineRemoveRedEye, MdOutlineEmail } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,15 +15,45 @@ import { useDispatch, useSelector } from 'react-redux';
 const Leads = () => {
     const router = useRouter()
     const dispatch = useDispatch()
+    const { user_data } = useSelector((state: any) => state.Auth)
     const { leadList } = useSelector((state: any) => state.Leads)
+    const [assignUserData, setAssignUserData] = useState([])
+    const [flag, setFlag] = useState(false)
     useEffect(() => {
         dispatch(handleGetLeadsDataRequest({
             currentPage: 1,
             perPage: 10
         }))
-    }, [])
+    }, [flag])
     // console.log("leadList", leadList)
 
+    const handleAssignUserData = async () => {
+        try {
+            const response: Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/user?user_role=employee`, {
+                method: "GET"
+            });
+            const jsonData: any = await response.json()
+            if (jsonData) {
+                if (jsonData.status_code === 200) {
+                    setAssignUserData(jsonData.data)
+                } else {
+                    // toast.error(jsonData.message)
+                }
+            } else {
+                // toast.error("Something went wrong")
+            }
+        } catch (error: any) {
+            // toast.error(error.message)
+        }
+    }
+
+
+    useEffect(() => {
+        handleAssignUserData()
+    }, [])
+
+
+    console.log("user_data", user_data)
     interface DataRow {
         name: string;
         email: string;
@@ -33,6 +65,30 @@ const Leads = () => {
     }
     const [isOpen, setIsOpen] = useState(false);
     const toggleDropdown = () => setIsOpen(!isOpen);
+
+    const handleDeleteLead = async (props: any) => {
+        try {
+
+            const { row } = props
+            const response: Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leads`, {
+                method: "DELETE",
+                body: JSON.stringify({ id: row.id })
+            });
+            const jsonData: any = await response.json()
+            if (jsonData) {
+                if (jsonData.status_code === 200) {
+                    toast.success(jsonData.message)
+                    setFlag(!flag)
+                } else {
+                    toast.error(jsonData.message)
+                }
+            } else {
+                toast.error("Something went wrong")
+            }
+        } catch (error: any) {
+            toast.error(error.message)
+        }
+    }
 
     const columns: TableColumn<DataRow>[] = [
         {
@@ -55,6 +111,7 @@ const Leads = () => {
         {
             name: 'Status',
             center: true,
+            omit: true,
             cell: (row: DataRow) => {
 
                 const statusDropdown = [
@@ -107,6 +164,45 @@ const Leads = () => {
             },
         },
         {
+            name: 'Assign User',
+            center: true,
+            omit: user_data ? user_data.user_role ? user_data.user_role === 1 ? false : true : true : true,
+            cell: (row: any) => {
+                const handleAssignLeadToUser = async (e: any) => {
+                    const userId = e.id
+                    const leadId = row.id
+                    try {
+                        const response: Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leads/assign-user`, {
+                            method: "POST",
+                            body: JSON.stringify({ userId, leadId })
+                        });
+                        const jsonData: any = await response.json()
+                        if (jsonData) {
+                            if (jsonData.status_code === 200) {
+                                toast.success(jsonData.message)
+                                setFlag(!flag)
+                            } else {
+                                toast.error(jsonData.message)
+                            }
+                        } else {
+                            toast.error("Something went wrong")
+                        }
+                    } catch (error: any) {
+                        toast.error(error.message)
+                    }
+                }
+                return (<>
+                    <SelectDropdown
+                        options={assignUserData}
+                        onChange={(e: any) => {
+                            handleAssignLeadToUser(e)
+                        }}
+                        value={assignUserData.filter((io: any) => io.id === row.assignUser)}
+                    />
+                </>)
+            }
+        },
+        {
             name: 'Created At',
             center: true,
             selector: (row: DataRow) => moment(row.createdAt * 1000).format("DD-MMM-YYYY"),
@@ -122,11 +218,20 @@ const Leads = () => {
             cell: (row: DataRow): React.ReactNode => (
                 <div className='flex'>
                     <FaRegEdit size={20} className='mr-2 text-primary1 cursor-pointer'
-                        onClick={() => handleNavigation({ path: "/leads/update", router })}
-
+                        onClick={() => {
+                            handleNavigation({ path: "/leads/update", router, query: { row } })
+                        }}
                     />
-                    <MdDeleteOutline size={23} className='mr-2 text-primary1 cursor-pointer' />
-                    <MdOutlineRemoveRedEye size={23} className='mr-2 text-primary1 cursor-pointer' />
+                    <MdDeleteOutline size={23} className='mr-2 text-primary1 cursor-pointer'
+                        onClick={() => {
+                            handleDeleteLead({ row })
+                        }}
+                    />
+                    <MdOutlineRemoveRedEye size={23} className='mr-2 text-primary1 cursor-pointer'
+                        onClick={() => {
+                            handleNavigation({ path: "/leads/view", router, query: { row } })
+                        }}
+                    />
                     <MdOutlineEmail size={23} className='mr-2 text-primary1 cursor-pointer' />
 
 
@@ -135,27 +240,42 @@ const Leads = () => {
         }
     ];
 
+    // console.log(router.query); // Alerts 'Someone'
+
     return (<>
 
         <div className='flex justify-between'>
             <div className='text-4xl font-bold text-primary1'>Leads</div>
             <Button
-                buttonType="primary"
+                buttontype="primary"
                 title={"Create Lead"}
                 type='button'
                 onClick={() => {
                     handleNavigation({ path: "/leads/create", router })
                 }}
             />
-
         </div>
-        <div className='mt-4'>
-            <DataTable
-                columns={columns}
-                data={leadList}
-                selectableRows
-                pagination
-            />
+
+        {/* <div style={{ boxShadow: "#d9d9d9 5px 4px 10px 10px", borderRadius: "10px", borderColor: "white", borderWidth: "6px" }}>
+            <div
+                className='w-full flex flex-wrap mt-4'
+            >
+
+                <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+
+                </div>
+            </div>
+        </div> */}
+
+        <div className='mt-12'>
+            <div style={{ boxShadow: "#d9d9d9 5px 4px 10px 10px", borderRadius: "10px", borderColor: "white", borderWidth: "6px" }}>
+                <DataTable
+                    columns={columns}
+                    data={leadList}
+                    selectableRows
+                    pagination
+                />
+            </div>
         </div>
 
     </>)

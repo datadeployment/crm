@@ -6,6 +6,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 // Define the type for your bank list and any other data you expect in the state
 interface LeadsState {
     leadList: any[]; // Specify a more specific type instead of any if possible
+    leadData: any[]
 }
 
 // Define the type for the payload of your actions
@@ -24,6 +25,7 @@ interface GetLeadsDataResponsePayload {
 
 const initialLeadsState: LeadsState = {
     leadList: [],
+    leadData: []
 };
 
 export const Leads = createSlice({
@@ -35,9 +37,20 @@ export const Leads = createSlice({
         },
         handleGetLeadsDataResponse: (state, action: PayloadAction<GetLeadsDataResponsePayload>) => {
             hideLoader()
-            const { data } = action.payload;
-            if (Array.isArray(data) && data.length > 0) {
-                state.leadList = data;
+            if (action.payload) {
+                const { data } = action.payload;
+                if (Array.isArray(data) && data.length > 0) {
+                    state.leadList = data;
+                }
+            }
+        },
+        handleGetSingleLeadsDataResponse: (state, action: PayloadAction<GetLeadsDataResponsePayload>) => {
+            hideLoader()
+            if (action.payload) {
+                const { data } = action.payload;
+                if (Array.isArray(data) && data.length > 0) {
+                    state.leadData = data;
+                }
             }
         }
     }

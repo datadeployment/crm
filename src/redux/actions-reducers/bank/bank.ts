@@ -34,9 +34,11 @@ export const Bank = createSlice({
         },
         handleGetBankDataResponse: (state, action: PayloadAction<GetBankDataResponsePayload>) => {
             hideLoader()
-            const { data } = action.payload;
-            if (Array.isArray(data) && data.length > 0) {
-                state.bankList = data;
+            if (action.payload) {
+                const { data } = action.payload;
+                if (Array.isArray(data) && data.length > 0) {
+                    state.bankList = data;
+                }
             }
         }
     }

@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import Input from '@/components/input'
 import Advertisement from '@/components/Advertisement'
-import { API_URL } from '@/constant'
+
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
 import { handleNavigation, hideLoader, showLoader } from '@/utils/utils'
@@ -18,10 +18,10 @@ const SignUp = () => {
 
     try {
       showLoader()
-      const api_res_role = await fetch(`${API_URL}/auth/user-role/default-data`, { method: "POST", body: JSON.stringify(signupFormData) })
+      const api_res_role = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/user-role/default-data`, { method: "POST", body: JSON.stringify(signupFormData) })
       const res_data_role = await api_res_role.json()
       if (res_data_role.status_code === 200) {
-        const api_res = await fetch(`${API_URL}/auth/signup`, { method: "POST", body: JSON.stringify(signupFormData) })
+        const api_res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, { method: "POST", body: JSON.stringify(signupFormData) })
         const res_data = await api_res.json()
         if (res_data.status_code === 200) {
           toast.success(res_data.message)
@@ -172,7 +172,7 @@ const SignUp = () => {
               <div className='mt-4'>
 
                 <Button
-                  buttonType="primary"
+                  buttontype="primary"
                   title={"Sign Up"}
                   type='submit'
                   className="w-full"

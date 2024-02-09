@@ -1,6 +1,6 @@
 
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { API_URL } from '@/constant';
+
 import toast from 'react-hot-toast';
 import { hideLoader, showLoader } from '@/utils/utils';
 import qs from "qs"
@@ -9,7 +9,7 @@ function* handleGetBankDataRequest(payload: any): Generator<any, void, Response>
     const params = qs.stringify(payload.payload)
     try {
         showLoader()
-        const response: Response = yield call(fetch, `${API_URL}/bank?${params}`, {
+        const response: Response = yield call(fetch, `${process.env.NEXT_PUBLIC_API_URL}/bank?${params}`, {
             method: "GET"
         });
         const jsonData: any = yield call([response, 'json']);

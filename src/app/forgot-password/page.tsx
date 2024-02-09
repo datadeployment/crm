@@ -7,10 +7,10 @@ import Button from '@/components/Button'
 const SignUp = () => {
   return (
     <div className='flex w-full'>
-      <div className='w-full h-screen flex justify-center items-center bg-primary4 '>
+      <div className='lg:w-full lg:h-screen lg:justify-center lg:items-center lg:bg-primary4 hidden lg:flex '>
         <Advertisement />
       </div>
-      <div className='p-14 w-1/2'>
+      <div className='lg:p-14 lg:w-6/12 w-full p-14 h-screen'>
         <div className='flex flex-col justify-center h-5/6'>
           {/* <div className='font-black text-3xl'>
             Talk Legal
@@ -31,7 +31,7 @@ const SignUp = () => {
             />
             <div className='mt-4'>
               <Button
-                buttonType="primary"
+                buttontype="primary"
                 title={"Send"}
                 type='button'
                 className="w-full"

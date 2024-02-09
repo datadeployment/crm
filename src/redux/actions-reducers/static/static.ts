@@ -37,6 +37,13 @@ const initialStaticState = {
         { label: 'Male', value: 'Male' },
         { label: "Female", value: "Female" },
         { label: "Other", value: "Other" }
+    ],
+    loan_agreement_status: [
+        { label: "REQUESTED", value: "REQUESTED" },
+        { label: "HAVE AGREEMENT", value: "HAVE AGREEMENT" },
+        { label: "NO RESPONSE FROM BANK", value: "NO RESPONSE FROM BANK" },
+        { label: "BANK SENT BAD DOC", value: "BANK SENT BAD DOC" },
+        { label: "HAS LOAN AGREEMENT", value: "HAS LOAN AGREEMENT" }
     ]
     // instance_type_dropdown: []
 }

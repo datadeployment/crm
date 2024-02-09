@@ -16,10 +16,15 @@ export const create_leads_table = `create table if not exists Leads (
     drivingLicense varchar(30),
     password varchar(200),
     status varchar(200),
+    lawyerName varchar(100),
+    description text,
+    loanAgreementStatus varchar(100),
+    assignUser INT,
     createdBy INT NOT NULL,
     updatedBy INT NOT NULL,
     createdAt VARCHAR(20) NOT NULL,
-    updatedAt VARCHAR(20) NOT NULL, 
+    updatedAt VARCHAR(20) NOT NULL,
+    FOREIGN KEY (assignUser) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (createdBy) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (updatedBy) REFERENCES User(id) ON DELETE CASCADE
 )`

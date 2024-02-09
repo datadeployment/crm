@@ -19,11 +19,14 @@ export const hideLoader = () => {
     }
 }
 
-export const handleNavigation = ({ path, router }: { path: string, router: any }) => {
+export const handleNavigation = ({ path, router, query }: { path: string, router: any, query?: object }) => {
     if (location.pathname !== path) {
         showLoader()
-        router.push(path)
     }
+    if (query && typeof query === "object") {
+        history.pushState(query, "", path)
+    }
+    router.push(path)
 }
 
 export const removeWhiteSpace = (value: string) => {

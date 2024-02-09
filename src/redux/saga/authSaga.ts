@@ -1,13 +1,13 @@
 
 import { call, put, takeEvery } from 'redux-saga/effects';
-import { API_URL } from '@/constant';
+
 import toast from 'react-hot-toast';
 import { hideLoader, showLoader } from '@/utils/utils';
 
 function* handleGetUserDataRequest(): Generator<any, void, Response> {
     try {
-        showLoader()
-        const response: Response = yield call(fetch, `${API_URL}/auth/get-user-data`, {
+
+        const response: Response = yield call(fetch, `${process.env.NEXT_PUBLIC_API_URL}/auth/get-user-data`, {
             method: "GET"
         });
         const jsonData: any = yield call([response, 'json']);
@@ -24,7 +24,7 @@ function* handleGetUserDataRequest(): Generator<any, void, Response> {
             toast.error("Something went wrong");
         }
     } catch (err: any) {
-        hideLoader()
+
         // toast.error(`${err.message} - get-user-data/`);
         // Optionally, handle the error in Redux store
         // yield put({ type: "Auth/error", error: err.message });

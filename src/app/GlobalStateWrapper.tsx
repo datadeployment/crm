@@ -1,6 +1,5 @@
 "use client"
-
-import { handleGetUserDataRequest } from '@/redux/actions-reducers/auth/auth';
+import { handleGetUserDataRequest, handleSetIsLoggedInRequest } from '@/redux/actions-reducers/auth/auth';
 import { Toaster } from 'react-hot-toast';
 import { Provider, useDispatch } from 'react-redux';
 import React, { useEffect, useState } from 'react';
@@ -17,10 +16,13 @@ const GlobalStateWrapper = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             if (pathname === location.pathname) {
+                const isLoggedIn = localStorage.getItem("isLoggedIn") === "true"
+                dispatch(handleSetIsLoggedInRequest({ isLoggedIn }))
                 hideLoader()
             } else {
                 showLoader()
             }
+
         }
     }, [pathname])
 

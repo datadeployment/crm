@@ -1,197 +1,138 @@
 "use client"
-import Button from '@/components/Button'
-import Input from '@/components/input'
-import { handleNavigation } from '@/utils/utils'
+import React, { useEffect, useState } from 'react'
+import { handleNavigation, hideLoader, showLoader } from '@/utils/utils'
 import { useRouter } from 'next/navigation'
-import React from 'react'
-import Select from 'react-select'
+import Button from '@/components/Button'
+import toast from 'react-hot-toast'
+import LeadFormData from '../LeadFormData'
+import { handleGetLeadsDataRequest } from '@/redux/actions-reducers/leads/leads'
+import { useDispatch, useSelector } from 'react-redux'
+const myState = history.state;//store the state variable outside the component
 
-
-const CreateLead = () => {
+const UpdateLead = () => {
     const router = useRouter()
-    const genderDropdown = [
-        { label: 'Male', value: 'Male' },
-        { label: "Female", value: "Female" },
-        { label: "Other", value: "Other" }
-    ]
-    const handleSubmit = (e: any) => {
+    const dispatch = useDispatch()
+    const { leadData } = useSelector((state: any) => state.Leads)
+    const { id } = myState?.row ? myState?.row : { id: null }
+    const [personalInformation, setPersonalInformation] = useState<any>({
+        name: "",
+        email: "",
+        phone: "",
+        lawyerName: "",
+        description: "",
+        loanAgreementStatus: "",
+        dob: "",
+        gender: "",
+        creditScore: "",
+        rationCard: "",
+        address: "",
+        pan: "",
+        passport: "",
+        telephone: "",
+        voterId: "",
+        aadhaarNumber: "",
+        drivingLicense: ""
+    })
+    const accountInformationObj = JSON.parse(JSON.stringify({
+        bankId: "",
+        accountType: "",
+        ownership: "",
+        dateReported: "",
+        accountStatus: "",
+        dateOpened: "",
+        sanctionAmount: "",
+        currentBalance: "",
+        amountOverdue: ""
+    }))
+    const [accountInformation, setAccountInformation] = useState([accountInformationObj])
+
+    useEffect(() => {
+        if (id) {
+            dispatch(handleGetLeadsDataRequest({
+                id
+            }))
+
+        }
+    }, [id])
+
+
+    useEffect(() => {
+        if (leadData && Array.isArray(leadData) && leadData.length > 0) {
+
+            const [firstLead] = leadData;
+            const { accountData, ...restLeadData } = firstLead;
+            if (accountData && Array.isArray(accountData) && accountData.length > 0) {
+                setAccountInformation(JSON.parse(JSON.stringify(accountData)))
+            }
+            setPersonalInformation(JSON.parse(JSON.stringify(restLeadData)))
+        }
+
+    }, [leadData])
+
+
+    const handleSubmit = async (e: any) => {
         e.preventDefault()
+        try {
+            showLoader()
+            const payload = {
+                ...personalInformation,
+                accountData: Object.values(accountInformation[0]).join("").length > 0 ? accountInformation : []
+            }
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leads`, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            const res_json = await response.json()
+
+            if (res_json.status_code === 200) {
+                hideLoader()
+                toast.success(res_json.message)
+                handleNavigation({ path: "/leads", router })
+            } else {
+                hideLoader()
+                toast.error(res_json.message)
+            }
+        } catch (err: any) {
+            hideLoader()
+            toast.error(err.message)
+        }
     }
-    const styles = {
-        control: (baseStyles: any, state: any) => ({
-            ...baseStyles,
-            borderColor: '#e1e1e1',
-            backgroundColor: "#fbfbfb",
-            fontSize: "16px",
-            padding: "3px"
-        })
-        // multiValue: (base: any, state: any) => {
-        //     return state.data.isFixed ? { ...base, backgroundColor: 'red' } : base;
-        // },
-        // multiValueLabel: (base: any, state: any) => {
-        //     return state.data.isFixed
-        //         ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
-        //         : base;
-        // },
-        // multiValueRemove: (base: any, state: any) => {
-        //     return state.data.isFixed ? { ...base, display: 'none' } : base;
-        // },
-    };
+
+
+    console.log("accountInformation", accountInformation)
+    console.log("personalInformation", personalInformation)
     return (<>
-        <div className='m-4'>
+        <form onSubmit={handleSubmit}>
             <div className='flex justify-between'>
-                <div className='text-4xl font-bold'>Update Leads</div>
+                <div className='text-4xl font-bold text-primary1'>Update Lead</div>
                 <div>
                     <Button
-                        buttonType="secondary"
+                        buttontype="secondary"
                         title={"Back"}
                         type='button'
                         className="mr-2"
                         onClick={() => handleNavigation({ path: "/leads", router })}
                     />
                     <Button
-                        buttonType="primary"
+                        buttontype="primary"
                         title={"Update"}
-                        type='button'
+                        type='submit'
 
                     />
                 </div>
             </div>
-            <div className='mt-8'>
-                <form onSubmit={handleSubmit}>
-                    <div className='flex'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="text"
-                                labeltext="First Name"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <Input
-                                type="text"
-                                labeltext="Last Name"
-                            />
-                        </div>
-                    </div>
 
-                    <div className='flex mt-6'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="email"
-                                labeltext="Email"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <Input
-                                type="number"
-                                labeltext="Phone"
-                            />
-                        </div>
-                    </div>
+            <LeadFormData
+                personalInformation={personalInformation}
+                setPersonalInformation={setPersonalInformation}
+                accountInformation={accountInformation}
+                setAccountInformation={setAccountInformation}
+                accountInformationObj={accountInformationObj}
+            />
 
-                    <div className='flex mt-6'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="date"
-                                labeltext="Date of birth"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <label htmlFor="gender" className='cursor-pointer block text-xs'>Gender</label>
-                            <Select
-                                // className="basic-single"
-                                // classNamePrefix="select"
-                                // defaultValue={colourOptions[0]}
-                                // isDisabled={isDisabled}
-                                // isLoading={isLoading}
-                                // isClearable={isClearable}
-                                // isRtl={isRtl}
-                                // isSearchable={isSearchable}
-                                // name="color"
-                                styles={styles}
-                                options={genderDropdown}
-                            />
-                        </div>
-                    </div>
-
-                    <div className='flex mt-6'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="text"
-                                labeltext="Credit score"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <Input
-                                type="text"
-                                labeltext="Ration Card"
-                            />
-                        </div>
-                    </div>
-
-                    <div className='flex mt-6'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="text"
-                                labeltext="Address"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <Input
-                                type="text"
-                                labeltext="Pan Number"
-                            />
-                        </div>
-                    </div>
-
-                    <div className='flex mt-6'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="text"
-                                labeltext="Passport"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <Input
-                                type="text"
-                                labeltext="Telephone"
-                            />
-                        </div>
-                    </div>
-
-                    <div className='flex mt-6'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="text"
-                                labeltext="Voter Id"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <Input
-                                type="text"
-                                labeltext="Aadhaar Number"
-                            />
-                        </div>
-                    </div>
-
-                    <div className='flex mt-6'>
-                        <div className='w-full mr-6'>
-                            <Input
-                                type="text"
-                                labeltext="Driving License"
-                            />
-                        </div>
-                        <div className='w-full'>
-                            <Input
-                                type="text"
-                                labeltext="User Role"
-                            />
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+        </form>
     </>)
 }
 
-export default CreateLead
+export default UpdateLead
