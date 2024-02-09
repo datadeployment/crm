@@ -215,11 +215,11 @@ const Leads = () => {
         {
             name: 'Action',
             center: true,
-            cell: (row: DataRow): React.ReactNode => (
+            cell: (row: any): React.ReactNode => (
                 <div className='flex'>
                     <FaRegEdit size={20} className='mr-2 text-primary1 cursor-pointer'
                         onClick={() => {
-                            handleNavigation({ path: "/leads/update", router, query: { row } })
+                            handleNavigation({ path: `/leads/update?leadId=${row.id}`, router })
                         }}
                     />
                     <MdDeleteOutline size={23} className='mr-2 text-primary1 cursor-pointer'
@@ -229,7 +229,7 @@ const Leads = () => {
                     />
                     <MdOutlineRemoveRedEye size={23} className='mr-2 text-primary1 cursor-pointer'
                         onClick={() => {
-                            handleNavigation({ path: "/leads/view", router, query: { row } })
+                            handleNavigation({ path: `/leads/view?leadId=${row.id}`, router })
                         }}
                     />
                     <MdOutlineEmail size={23} className='mr-2 text-primary1 cursor-pointer' />

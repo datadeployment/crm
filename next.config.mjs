@@ -4,6 +4,9 @@ const nextConfig = {
     // images: {
     //     domains: ['https://pixabay.com'], //make it 'your-domain.com'
     // },
+    experimental: {
+        missingSuspenseWithCSRBailout: false,
+    },
     async headers() {
         return [
             {

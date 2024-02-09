@@ -7,13 +7,15 @@ import toast from 'react-hot-toast'
 import LeadFormData from '../LeadFormData'
 import { handleGetLeadsDataRequest } from '@/redux/actions-reducers/leads/leads'
 import { useDispatch, useSelector } from 'react-redux'
-const myState = history.state;//store the state variable outside the component
+import { useSearchParams } from 'next/navigation'
 
 const UpdateLead = () => {
     const router = useRouter()
     const dispatch = useDispatch()
     const { leadData } = useSelector((state: any) => state.Leads)
-    const { id } = myState?.row ? myState?.row : { id: null }
+    const [id, setId] = useState(null)
+    const searchParams = useSearchParams()
+    const leadId = Number(searchParams.get('leadId'))
     const [personalInformation, setPersonalInformation] = useState<any>({
         name: "",
         email: "",
@@ -47,14 +49,13 @@ const UpdateLead = () => {
     const [accountInformation, setAccountInformation] = useState([accountInformationObj])
 
     useEffect(() => {
-        if (id) {
+        if (leadId) {
             dispatch(handleGetLeadsDataRequest({
-                id
+                id: leadId
             }))
 
         }
-    }, [id])
-
+    }, [leadId])
 
     useEffect(() => {
         if (leadData && Array.isArray(leadData) && leadData.length > 0) {

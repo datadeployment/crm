@@ -19,12 +19,9 @@ export const hideLoader = () => {
     }
 }
 
-export const handleNavigation = ({ path, router, query }: { path: string, router: any, query?: object }) => {
+export const handleNavigation = ({ path, router }: { path: string, router: any }) => {
     if (location.pathname !== path) {
         showLoader()
-    }
-    if (query && typeof query === "object") {
-        history.pushState(query, "", path)
     }
     router.push(path)
 }

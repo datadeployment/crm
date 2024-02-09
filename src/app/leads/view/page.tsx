@@ -7,24 +7,26 @@ import toast from 'react-hot-toast'
 import { handleGetLeadsDataRequest } from '@/redux/actions-reducers/leads/leads'
 import { useDispatch, useSelector } from 'react-redux'
 import { accountInformationLabel, personalInformationName } from '../LeadFormData'
-const myState = history.state;//store the state variable outside the component
+import { useSearchParams } from 'next/navigation'
+
 const ViewLead = () => {
     const router = useRouter()
     const dispatch = useDispatch()
+    const searchParams = useSearchParams()
+
     const { leadData } = useSelector((state: any) => state.Leads)
-    const { id } = myState?.row ? myState?.row : { id: null }
+
+    const leadId = Number(searchParams.get('leadId'))
+
     useEffect(() => {
-        if (id) {
+        if (leadId) {
             dispatch(handleGetLeadsDataRequest({
-                id
+                id: leadId
             }))
 
         }
-    }, [id])
-    // function capitalizeFirstLetter(string) {
-    //     return string.charAt(0).toUpperCase() + string.slice(1);
-    // }
-    console.log(leadData)
+    }, [leadId])
+
     return (<>
         <div className='flex justify-between'>
             <div className='text-4xl font-bold text-primary1'>View Lead</div>
