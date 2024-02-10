@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
         if (payload && Object.keys(payload).length > 0) {
             const res_data: any = await getDataFromToken(request);
             if (res_data.status_code === 200) {
-                const { name, email, phone, dob, gender, creditScore, rationCard, address, pan, passport, telephone, voterId, aadhaarNumber, drivingLicense, accountData, lawyerName, description, loanAgreementStatus } = payload
+                const { name, email, phone, dob, gender, creditScore, rationCard, address, pan, passport, telephone, voterId, aadhaarNumber, drivingLicense, accountData, lawyerName, description, loanAgreementStatus, assignUser } = payload
                 if (name && email) {
 
                     const hashedPwd = await hashData(name)
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
                                 }
                             } else {
                                 const insert_lead_data: any = await query({
-                                    query: `INSERT INTO Leads (name, email, phone, dob, gender, creditScore, rationCard, address, pan, passport, telephone, voterId, aadhaarNumber, drivingLicense, password, lawyerName, description, loanAgreementStatus, createdBy, updatedBy, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                                    query: `INSERT INTO Leads (name, email, phone, dob, gender, creditScore, rationCard, address, pan, passport, telephone, voterId, aadhaarNumber, drivingLicense, password, lawyerName, description, loanAgreementStatus, assignUser, createdBy, updatedBy, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                                     values: [
                                         name,
                                         email,
@@ -162,6 +162,7 @@ export async function POST(request: NextRequest) {
                                         lawyerName,
                                         description,
                                         loanAgreementStatus,
+                                        assignUser,
                                         id,
                                         id,
                                         createdAt,

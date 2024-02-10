@@ -4,8 +4,8 @@ import SelectDropdown from '@/components/SelectDropdown';
 import { handleGetLeadsDataRequest } from '@/redux/actions-reducers/leads/leads';
 import { handleNavigation } from '@/utils/utils';
 import moment from 'moment';
-import { useRouter } from 'next/navigation'
-import React, { useState, useEffect, ReactElement } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useState, useEffect, ReactElement, useCallback } from 'react'
 import DataTable, { TableColumn } from 'react-data-table-component';
 import toast from 'react-hot-toast';
 import { FaRegEdit } from "react-icons/fa";
@@ -19,12 +19,14 @@ const Leads = () => {
     const { leadList } = useSelector((state: any) => state.Leads)
     const [assignUserData, setAssignUserData] = useState([])
     const [flag, setFlag] = useState(false)
+    const searchParams = useSearchParams()
     useEffect(() => {
         dispatch(handleGetLeadsDataRequest({
             currentPage: 1,
             perPage: 10
         }))
     }, [flag])
+
     // console.log("leadList", leadList)
 
     const handleAssignUserData = async () => {

@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation'
 import Button from '@/components/Button'
 import toast from 'react-hot-toast'
 import LeadFormData from '../LeadFormData'
+import { useSelector } from 'react-redux'
 
 const CreateLead = () => {
     const router = useRouter()
-
+    const { user_data } = useSelector((state: any) => state.Auth)
     const [personalInformation, setPersonalInformation] = useState<any>({
         name: "",
         email: "",
@@ -40,13 +41,14 @@ const CreateLead = () => {
         amountOverdue: ""
     }))
     const [accountInformation, setAccountInformation] = useState([accountInformationObj])
-
+    console.log("user_data", user_data)
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         try {
             showLoader()
             const payload = {
                 ...personalInformation,
+                assignUser: user_data.user_role !== 1 ? user_data.id : "",
                 accountData: Object.values(accountInformation[0]).join("").length > 0 ? accountInformation : []
             }
 
