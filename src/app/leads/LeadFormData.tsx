@@ -11,106 +11,106 @@ import Button from '@/components/Button'
 export const personalInformationName: any = [
 
     {
-        labeltext: "Name",
+        label: "Name",
         value: "name",
         type: "text",
         placeholder: "Enter",
         required: true
     },
     {
-        labeltext: "Email",
+        label: "Email",
         value: "email",
         type: "email",
         placeholder: "Enter",
         required: true
     },
     {
-        labeltext: "Phone",
+        label: "Phone",
         value: "phone",
         type: "number",
         placeholder: "Enter",
         required: true
     },
     {
-        labeltext: "Lawyer Name",
+        label: "Lawyer Name",
         value: "lawyerName",
         type: "text",
         placeholder: "Enter"
     },
     {
-        labeltext: "Description",
+        label: "Description",
         value: "description",
         type: "text",
         placeholder: "Enter"
     },
     {
-        labeltext: "Loan Agreement Status",
+        label: "Loan Agreement Status",
         value: "loanAgreementStatus",
         type: "text",
         placeholder: "Select"
     },
     {
-        labeltext: "Date of Birth",
+        label: "Date of Birth",
         value: "dob",
         type: "date",
         placeholder: "Select"
     },
     {
-        labeltext: "Gender",
+        label: "Gender",
         value: "gender",
         type: "text",
         placeholder: "Select"
     },
     {
-        labeltext: "Credit Score",
+        label: "Credit Score",
         value: "creditScore",
         type: "number",
         placeholder: "Enter"
     },
     {
-        labeltext: "Ration Card",
+        label: "Ration Card",
         value: "rationCard",
         type: "text",
         placeholder: "Enter"
     },
     {
-        labeltext: "Address",
+        label: "Address",
         value: "address",
         type: "text",
         placeholder: "Enter"
     },
     {
-        labeltext: "Pan Number",
+        label: "Pan Number",
         value: "pan",
         type: "text",
         placeholder: "Enter"
     },
     {
-        labeltext: "Passport",
+        label: "Passport",
         value: "passport",
         type: "text",
         placeholder: "Enter"
     },
     {
-        labeltext: "Telephone",
+        label: "Telephone",
         value: "telephone",
         type: "number",
         placeholder: "Enter"
     },
     {
-        labeltext: "Voter Id",
+        label: "Voter Id",
         value: "voterId",
         type: "text",
         placeholder: "Enter"
     },
     {
-        labeltext: "Aadhaar Number",
+        label: "Aadhaar Number",
         value: "aadhaarNumber",
         type: "number",
         placeholder: "Enter"
     },
     {
-        labeltext: "Driving License",
+        label: "Driving License",
         value: "drivingLicense",
         type: "text",
         placeholder: "Enter"
@@ -300,7 +300,7 @@ const LeadFormData = ({ personalInformation, setPersonalInformation, accountInfo
                                 {...item}
                                 onChange={(e: any) => setPersonalInformation({ ...personalInformation, [item.value]: e.target.value })}
                                 value={personalInformation[item.value]}
-                                placeholder={`${item.placeholder} ${item.labeltext}`}
+                                placeholder={`${item.placeholder} ${item.label}`}
                             />
                         )}
                     </div>

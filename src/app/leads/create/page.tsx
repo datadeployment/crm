@@ -41,7 +41,7 @@ const CreateLead = () => {
         amountOverdue: ""
     }))
     const [accountInformation, setAccountInformation] = useState([accountInformationObj])
-    console.log("user_data", user_data)
+
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         try {

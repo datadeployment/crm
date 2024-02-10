@@ -8,7 +8,7 @@ function* handleGetLeadsDataRequest(payload: any): Generator<any, void, Response
 
     const params = qs.stringify(payload.payload)
     try {
-        showLoader()
+        // showLoader()
         const response: Response = yield call(fetch, `${process.env.NEXT_PUBLIC_API_URL}/leads?${params}`, {
             method: "GET"
         });
@@ -31,7 +31,7 @@ function* handleGetLeadsDataRequest(payload: any): Generator<any, void, Response
             toast.error("Something went wrong");
         }
     } catch (err: any) {
-        hideLoader()
+        // hideLoader()
         // toast.error(`${err.message} - get-user-data/`);
         // Optionally, handle the error in Redux store
         // yield put({ type: "Leads/error", error: err.message });

@@ -3,7 +3,8 @@ import Select from 'react-select'
 import AsyncSelect from 'react-select/async';
 
 const SelectDropdown = (props: any) => {
-    const { required, labeltext, asyncSelect } = props
+    const { required, labeltext, label, asyncSelect } = props
+    const labelText = labeltext || label
     const styles = {
         control: (baseStyles: any, state: any) => ({
             ...baseStyles,
@@ -42,8 +43,8 @@ const SelectDropdown = (props: any) => {
         }
     })
     return (<>
-        {labeltext && (<>
-            <label htmlFor={labeltext} className='cursor-pointer block text-xs mb-1'>{labeltext} <span className={`${required ? 'inline' : "hidden"} text-red-600 font-medium text-sm leading-none`}>*</span></label>
+        {labelText && (<>
+            <label htmlFor={labelText} className='cursor-pointer block text-xs mb-1'>{labelText} <span className={`${required ? 'inline' : "hidden"} text-red-600 font-medium text-sm leading-none`}>*</span></label>
         </>)}
         {asyncSelect === true ? (
             <AsyncSelect

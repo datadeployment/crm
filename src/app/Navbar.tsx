@@ -40,7 +40,7 @@ const Navbar = () => {
                         <div className='font-extrabold text-2xl mr-16 cursor-pointer' onClick={() => handleNavigation({ path: "/", router })}>
                             TALK LEGAL
                         </div>
-                        <div className='flex font-extrabold items-center'>
+                        {/* <div className='flex font-extrabold items-center'>
                             <div className='mr-8 cursor-pointer' onClick={() => handleNavigation({ path: "/leads", router })}>
                                 Leads
                             </div>
@@ -50,13 +50,13 @@ const Navbar = () => {
                             <div className='mr-8 cursor-pointer' onClick={() => handleNavigation({ path: "/contacts", router })}>
                                 Contact
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className='flex'>
-                        <div className='mr-4'>
+                        {/* <div className='mr-4'>
                             <img src={imgUrl} alt="user_img" className='cursor-pointer w-8' />
-                        </div>
+                        </div> */}
                         <div className='flex items-center' onClick={handleLogout}>
                             <LuLogOut size={25} className='cursor-pointer' />
                         </div>

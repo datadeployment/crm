@@ -1,6 +1,7 @@
 "use client"
 import Button from '@/components/Button';
 import SelectDropdown from '@/components/SelectDropdown';
+import Input from '@/components/input';
 import { handleGetLeadsDataRequest } from '@/redux/actions-reducers/leads/leads';
 import { handleNavigation } from '@/utils/utils';
 import moment from 'moment';
@@ -8,24 +9,91 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState, useEffect, ReactElement, useCallback } from 'react'
 import DataTable, { TableColumn } from 'react-data-table-component';
 import toast from 'react-hot-toast';
+import { CgClose } from 'react-icons/cg';
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline, MdOutlineRemoveRedEye, MdOutlineEmail } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
+import { personalInformationName } from './LeadFormData';
 
 const Leads = () => {
     const router = useRouter()
     const dispatch = useDispatch()
+    const { account_type_dropdown, account_ownership_dropdown, account_status_dropdown, gender_dropdown, loan_agreement_status } = useSelector((state: any) => state.Static)
     const { user_data } = useSelector((state: any) => state.Auth)
-    const { leadList } = useSelector((state: any) => state.Leads)
+    const { leadList, leadListLoad, leadListTotalCount } = useSelector((state: any) => state.Leads)
+    const [resetPaginationToggle, setResetPaginationToggle] = useState(false);
+    const [searchState, setSearchState] = useState("")
+    const [selectedRows, setSelectedRows] = useState([])
+    const [dateRangeFilter, setDateRangeFilter] = useState<{
+        fromDate: string;
+        toDate: string;
+    }>({
+        fromDate: "",
+        toDate: ""
+    })
+    const [filterPair, setFilterPair] = useState<{
+        filterKeyName: string;
+        filterKeyValue: string;
+    }>({
+        filterKeyName: "",
+        filterKeyValue: ""
+    })
+    const [filterParams, setFilterParams] = useState<{
+        currentPage: number;
+        perPage: number;
+        sort?: string;
+        keyName?: string;
+        filterKeyName?: string;
+        filterKeyValue?: string;
+    }>({
+        currentPage: 1,
+        perPage: 10
+    })
     const [assignUserData, setAssignUserData] = useState([])
     const [flag, setFlag] = useState(false)
-    const searchParams = useSearchParams()
-    useEffect(() => {
-        dispatch(handleGetLeadsDataRequest({
+
+    const handleReset = () => {
+        setFilterParams({
             currentPage: 1,
             perPage: 10
+        })
+        setResetPaginationToggle(!resetPaginationToggle)
+        setSearchState("")
+        setFilterPair({
+            filterKeyName: "",
+            filterKeyValue: ""
+        })
+        setDateRangeFilter({
+            fromDate: "",
+            toDate: ""
+        })
+        setSelectedRows([])
+    }
+
+    function debounce<T extends (...args: any[]) => any>(func: T): (...funcArgs: Parameters<T>) => void {
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        return function (this: ThisParameterType<T>, ...args: Parameters<T>): void {
+            const context = this;
+            if (timer !== null) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args);
+            }, 500);
+        };
+    }
+
+
+    const handleLeadListApiCall = (props: any) => {
+        dispatch(handleGetLeadsDataRequest({
+            ...props
         }))
-    }, [flag])
+    }
+
+    const handleDebounceLeadListApiCall = useCallback(debounce(handleLeadListApiCall), []);
+
+    useEffect(() => {
+        handleDebounceLeadListApiCall({ ...filterParams })
+    }, [flag, filterParams])
 
     // console.log("leadList", leadList)
 
@@ -54,8 +122,6 @@ const Leads = () => {
         handleAssignUserData()
     }, [])
 
-
-    console.log("user_data", user_data)
     interface DataRow {
         name: string;
         email: string;
@@ -95,6 +161,8 @@ const Leads = () => {
     const columns: TableColumn<DataRow>[] = [
         {
             name: 'Name',
+            sortable: true,
+            sortField: "name",
             selector: (row: DataRow) => row.name,
         },
         {
@@ -108,6 +176,8 @@ const Leads = () => {
         {
             name: 'Date of Birth',
             center: true,
+            sortable: true,
+            sortField: "dob",
             selector: (row: DataRow) => moment(row.dob).format("DD-MMM-YYYY"),
         },
         {
@@ -207,11 +277,15 @@ const Leads = () => {
         {
             name: 'Created At',
             center: true,
+            sortable: true,
+            sortField: "createdAt",
             selector: (row: DataRow) => moment(row.createdAt * 1000).format("DD-MMM-YYYY"),
         },
         {
             name: 'Updated At',
             center: true,
+            sortable: true,
+            sortField: "updatedAt",
             selector: (row: DataRow) => moment(row.updatedAt * 1000).format("DD-MMM-YYYY"),
         },
         {
@@ -244,6 +318,70 @@ const Leads = () => {
 
     // console.log(router.query); // Alerts 'Someone'
 
+    const handlePerRowsChange = async (newPerPage: number, page: number) => {
+        setFilterParams({
+            ...filterParams,
+            currentPage: page,
+            perPage: newPerPage
+        })
+    };
+
+    const handlePageChange = (newPage: number) => {
+        setFilterParams({
+            ...filterParams,
+            currentPage: newPage
+        })
+    };
+
+
+
+    const handleSort = async (column: any, sortDirection: string) => {
+        setFilterParams({
+            ...filterParams,
+            sort: sortDirection.toUpperCase(),
+            keyName: column.sortField
+        })
+    };
+
+    const actionsMemo = React.useMemo(() => {
+        return (
+            <div className='flex'>
+                <div>
+                    <Input
+                        type="text"
+                        onChange={(e: any) => {
+                            const value = e.target.value
+                            if (value) {
+                                handleDebounceLeadListApiCall({ ...filterParams, search: value })
+                                setSearchState(value)
+                            } else {
+                                handleReset()
+                            }
+                        }}
+                        value={searchState}
+                        placeholder="search..."
+                    />
+                </div>
+                <div className='bg-primary2 text-primary3 flex items-center px-3 rounded cursor-pointer border-2 border-primary1'
+                    onClick={() => {
+                        if (searchState) {
+                            handleReset()
+                        }
+                    }}
+                >
+                    <CgClose size={25} />
+                </div>
+            </div>
+        );
+    }, [resetPaginationToggle, searchState]);
+
+    useEffect(() => {
+        if (Object.values(dateRangeFilter).join("").length > 0) {
+            handleDebounceLeadListApiCall({ currentPage: 1, perPage: 10, ...dateRangeFilter })
+        }
+    }, [dateRangeFilter])
+
+
     return (<>
 
         <div className='flex justify-between'>
@@ -258,24 +396,218 @@ const Leads = () => {
             />
         </div>
 
-        {/* <div style={{ boxShadow: "#d9d9d9 5px 4px 10px 10px", borderRadius: "10px", borderColor: "white", borderWidth: "6px" }}>
+        <div style={{ boxShadow: "#d9d9d9 5px 4px 10px 10px", borderRadius: "10px", borderColor: "white", borderWidth: "6px" }}
+            className='bg-white mt-12'
+        >
             <div
                 className='w-full flex flex-wrap mt-4'
             >
 
                 <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                    <Input
+                        type="date"
+                        labeltext="From Date"
+                        onChange={(e: any) => {
+                            setDateRangeFilter({ ...dateRangeFilter, fromDate: e.target.value })
+                        }}
+                        value={dateRangeFilter.fromDate}
+                    />
+                </div>
 
+                <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                    <Input
+                        type="date"
+                        labeltext="To Date"
+                        onChange={(e: any) => {
+                            setDateRangeFilter({ ...dateRangeFilter, toDate: e.target.value })
+                        }}
+                        value={dateRangeFilter.toDate}
+                    />
+                </div>
+
+                <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                    <Input
+                        type="date"
+                        labeltext="Date of Birth"
+                        onChange={(e: any) => {
+                            if (e) {
+                                if (e.target.value) {
+                                    setFilterParams({ ...filterParams, filterKeyName: "dob", filterKeyValue: e.target.value })
+                                    return
+                                }
+                            }
+                            handleReset()
+                        }}
+                        value={filterParams.filterKeyName === "dob" && filterParams.filterKeyValue}
+                    />
+                </div>
+                {user_data && user_data.user_role && user_data.user_role === 1 && (<>
+                    <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                        <SelectDropdown
+                            options={assignUserData}
+                            labeltext="Assign User"
+                            onChange={(e: any) => {
+                                if (e) {
+                                    if (e.id) {
+                                        setFilterParams({ ...filterParams, filterKeyName: "assignUser", filterKeyValue: e.id })
+                                        return
+                                    }
+                                }
+                                handleReset()
+                            }}
+                            value={filterParams.filterKeyName === "assignUser" && assignUserData.filter((io: any) => io.id === filterParams.filterKeyValue)}
+                        />
+                    </div>
+                </>)}
+
+                <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                    <SelectDropdown
+                        options={loan_agreement_status}
+                        isSearchable={true}
+                        isClearable={true}
+                        labeltext="Loan Agreement Status"
+                        onChange={(e: any) => {
+                            if (e) {
+                                if (e.value) {
+                                    setFilterParams({ ...filterParams, filterKeyName: "loanAgreementStatus", filterKeyValue: e.value })
+                                    return
+                                }
+                            }
+                            handleReset()
+                        }}
+                        value={filterParams.filterKeyName === "loanAgreementStatus" && loan_agreement_status.filter((io: any) => io.value === filterParams.filterKeyValue)}
+                    />
+                </div>
+
+                <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                    <SelectDropdown
+                        options={gender_dropdown}
+                        isSearchable={true}
+                        isClearable={true}
+                        labeltext="Gender Dropdown"
+                        onChange={(e: any) => {
+                            if (e) {
+                                if (e.value) {
+                                    setFilterParams({ ...filterParams, filterKeyName: "gender", filterKeyValue: e.value })
+                                    return
+                                }
+                            }
+                            handleReset()
+                        }}
+                        value={filterParams.filterKeyName === "gender" && gender_dropdown.filter((io: any) => io.value === filterParams.filterKeyValue)}
+                    />
+                </div>
+
+                <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                    <SelectDropdown
+                        options={personalInformationName}
+                        isSearchable={true}
+                        isClearable={true}
+                        labeltext="Select Field"
+                        onChange={(e: any) => {
+                            if (e) {
+                                if (e.value) {
+                                    setFilterPair({ ...filterPair, filterKeyName: e.value })
+                                    return
+                                }
+                            }
+                            setFilterPair({ ...filterPair, filterKeyName: "" })
+
+                        }}
+                        value={personalInformationName.filter((io: any) => io.value === filterPair.filterKeyName)}
+                    />
+                </div>
+
+                <div className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
+                    <Input
+                        type="text"
+                        labeltext="Enter Field Value"
+                        onChange={(e: any) => {
+                            setFilterPair({ ...filterPair, filterKeyValue: e.target.value })
+                        }}
+                        value={filterPair.filterKeyValue}
+                        placeholder="Enter Field Value"
+                    />
                 </div>
             </div>
-        </div> */}
+            <div className='flex justify-between my-4 mx-3'>
+                <div>
 
-        <div className='mt-12'>
+                    <Button
+                        type="button"
+                        buttontype="primary"
+                        title="Search"
+                        className="mr-2"
+                        onClick={() => {
+                            handleDebounceLeadListApiCall({ currentPage: 1, perPage: 10, ...filterPair })
+                        }}
+                    />
+                    <Button
+                        type="button"
+                        buttontype="secondary"
+                        title="Reset"
+                        onClick={() => handleReset()}
+                    />
+                </div>
+                <div>
+                    <Button
+                        type="button"
+                        buttontype="primary"
+                        title="Delete"
+                        // className=""
+                        onClick={async () => {
+                            try {
+                                const ids = selectedRows.map((io: any) => io.id)
+                                if (ids.length > 0) {
+                                    const response: Response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/leads`, {
+                                        method: "DELETE",
+                                        body: JSON.stringify({ id: ids })
+                                    });
+                                    const jsonData: any = await response.json()
+                                    if (jsonData) {
+                                        if (jsonData.status_code === 200) {
+                                            toast.success(jsonData.message)
+                                            handleReset()
+                                        } else {
+                                            toast.error(jsonData.message)
+                                        }
+                                    } else {
+                                        toast.error("Something went wrong")
+                                    }
+                                } else {
+                                    toast.error("Please select atleast one record.")
+                                }
+                            } catch (error: any) {
+                                toast.error(error.message)
+                            }
+                        }}
+                    />
+                </div>
+            </div>
+        </div>
+
+        <div className='mt-6'>
             <div style={{ boxShadow: "#d9d9d9 5px 4px 10px 10px", borderRadius: "10px", borderColor: "white", borderWidth: "6px" }}>
                 <DataTable
+                    title="Lead List"
                     columns={columns}
+                    progressPending={leadListLoad}
                     data={leadList}
-                    selectableRows
-                    pagination
+                    selectableRows={true}
+                    onSelectedRowsChange={(row: any) => {
+                        setSelectedRows(row.selectedRows)
+                    }}
+                    pagination={true}
+                    paginationServer={true}
+                    paginationResetDefaultPage={resetPaginationToggle} // optionally, a hook to reset pagination to page 1
+                    paginationTotalRows={leadListTotalCount}
+                    onChangeRowsPerPage={handlePerRowsChange}
+                    onChangePage={handlePageChange}
+                    paginationRowsPerPageOptions={[10, 15, 20, 50, 100]}
+                    persistTableHead={true}
+                    onSort={handleSort}
+                    sortServer={true}
+                    actions={actionsMemo}
                 />
             </div>
         </div>

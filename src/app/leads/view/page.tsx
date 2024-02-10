@@ -47,17 +47,6 @@ const ViewLead = () => {
             </div>
         </div>
 
-        {/* <div className='flex justify-start flex-wrap'>
-            {leadData && leadData.length > 0 && (<>
-                {personalInformationName.map((item: any) => {
-                    if (leadData[0][item.value]) {
-                        return (<>
-                            <div className='text-lg m-6'>{item.labeltext}: {leadData[0][item.value]}</div>
-                        </>)
-                    }
-                })}
-            </>)}
-        </div> */}
         <div className='mt-8'>
 
             <div className='text-2xl text-primary1 mb-4'>
@@ -71,7 +60,7 @@ const ViewLead = () => {
                             return (<>
                                 <div key={index} className='w-full md:w-1/2 lg:w-1/3 xl:w-1/4 p-3 mt-6 md:mt-6 lg:mt-0 xl:mt-0'>
                                     <div className='text-lg'>
-                                        <b>{item.labeltext}:</b> {leadData[0][item.value]}</div>
+                                        <b>{item.label}:</b> {leadData[0][item.value]}</div>
                                 </div>
                             </>)
                         }

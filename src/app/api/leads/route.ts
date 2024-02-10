@@ -266,7 +266,7 @@ export async function GET(request: NextRequest) {
         if (res_data.status_code === 200) {
             const rawParams = request.url.split('?')[1];
             const params: any = qs.parse(rawParams);
-            const { id, currentPage, perPage, sort, keyName, filterKeyName, filterKeyValue, search } = params
+            const { id, currentPage, perPage, sort, keyName, filterKeyName, filterKeyValue, search, fromDate, toDate } = params
 
             const user_data = res_data.data.user_data
             const { user_role } = user_data
@@ -308,15 +308,23 @@ export async function GET(request: NextRequest) {
                     }
                 }
 
+                if (fromDate && toDate) {
+                    if (whereClauseQuery) {
+                        whereClauseQuery = `${whereClauseQuery} AND DATE(FROM_UNIXTIME(createdAt)) BETWEEN ? AND ?`
+                    } else {
+                        whereClauseQuery = "WHERE DATE(FROM_UNIXTIME(createdAt)) BETWEEN ? AND ?"
+                    }
+                }
+
                 let sortQuery = ""
                 if (keyName && sort) {
                     sortQuery = `ORDER BY ${keyName} ${sort}`
                 }
 
                 let searchQuery = ""
-                const searchVal: any = repeatString({ str: search, times: 1, prefix: "%", suffix: "%" })
+                const searchVal: any = repeatString({ str: search, times: 4, prefix: "%", suffix: "%" })
                 if (search) {
-                    searchQuery = `${whereClauseQuery ? "OR" : "WHERE"} name LIKE ?`;
+                    searchQuery = `${whereClauseQuery ? "OR" : "WHERE"} name LIKE ? OR email LIKE ? OR phone = ? OR lawyerName = ?`;
                 }
 
 
@@ -326,6 +334,10 @@ export async function GET(request: NextRequest) {
                 }
                 if (user_role !== 1) {
                     newValueArr.push(user_data.id)
+                }
+                if (fromDate && toDate) {
+                    newValueArr.push(fromDate)
+                    newValueArr.push(toDate)
                 }
 
                 if (searchQuery) {
