@@ -48,7 +48,7 @@ const CreateLead = () => {
             showLoader()
             const payload = {
                 ...personalInformation,
-                assignUser: user_data.user_role !== 1 ? user_data.id : "",
+                assignUser: user_data.id,
                 accountData: Object.values(accountInformation[0]).join("").length > 0 ? accountInformation : []
             }
 
